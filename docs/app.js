@@ -339,7 +339,7 @@ function renderChat() {
       const wrap = document.createElement("div");
       wrap.className = "msg " + (m.role === "user" ? "me" : "ai");
       const mini = document.createElement("div"); mini.className = "mini"; mini.textContent = m.role === "user" ? "你" : "♡";
-      const body = document.createElement("div");
+      const body = document.createElement("div"); body.className = "msgbody";
       const bubble = document.createElement("div"); bubble.className = "bubble"; bubble.textContent = m.content;
       const meta = document.createElement("div"); meta.className = "meta";
       const bits = [fmtTime(m.ts)];
@@ -909,6 +909,14 @@ document.getElementById("nav").addEventListener("click", ev => {
   const btn = ev.target.closest("button[data-tab]");
   if (btn) switchTab(btn.dataset.tab);
 });
+
+if (new URLSearchParams(location.search).get("clean") === "1") {
+  document.body.classList.add("clean-mode");
+  const title = document.getElementById("pageTitle");
+  const sub = document.getElementById("pageSub");
+  if (title) title.textContent = state.persona?.name || "小满";
+  if (sub) sub.textContent = "网页聊天";
+}
 
 updateBadges();
 renderChat();
