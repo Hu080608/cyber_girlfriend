@@ -92,6 +92,7 @@ function loadState() {
 function saveState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
   catch (err) { toast("浏览器存储失败：" + err.message, true); }
+  if (!suppressCloudSync) scheduleCloudSync();
 }
 
 function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
@@ -973,6 +974,11 @@ function updateSyncStatus() {
   el.textContent = `已配置 Gist：${c.gist} · 自动同步：${c.auto ? "开启" : "关闭"}${last ? " · 上次同步：" + fmtTime(last) : ""}`;
 }
 
+function setSyncStatusText(text) {
+  const el = document.getElementById("syncStatus");
+  if (el) el.textContent = text;
+}
+
 async function copySyncGistId() {
   const c = getSyncConfig();
   const id = c.gist || document.getElementById("sync_gist").value.trim();
@@ -1095,6 +1101,7 @@ async function cloudPush(silent = false) {
   if (!cfg.gist) cfg.gist = getSyncConfig().gist;
   try {
     if (!silent) toast("正在加密并上传…");
+    if (silent) setSyncStatusText("自动同步中…");
     const envelope = await encryptSyncPayload(syncStatePayload(), cfg.pass);
     const body = {
       description: "CyberGirlfriend encrypted sync",
@@ -1116,7 +1123,7 @@ async function cloudPush(silent = false) {
     if (!silent) toast("已上传到加密 Gist：" + gistId);
   } catch (err) {
     if (!silent) toast("同步失败：" + err.message, true);
-    else console.warn("自动同步失败", err);
+    else { setSyncStatusText("自动同步失败：" + err.message); console.warn("自动同步失败", err); }
   }
 }
 
