@@ -152,7 +152,9 @@
             <div class="field"><label>搜索模式</label><select id="s_search_mode"><option value="off">关闭</option><option value="auto">自动判断</option><option value="always">每条消息都搜</option></select></div>
             <div class="field"><label>搜索服务</label><select id="s_search_provider"><option value="duckduckgo">DuckDuckGo（免 Key，可能被 CORS 限制）</option><option value="serper">Serper.dev（推荐，需 Key）</option><option value="tavily">Tavily（需 Key）</option></select></div>
             <div class="field wide"><label>搜索 API Key</label><input id="s_search_key" type="password" autocomplete="off" placeholder="Serper/Tavily 的 Key；DuckDuckGo 留空"></div>
+            <div class="field wide"><label>自定义热词/梗词典（每行：词=解释）</label><textarea id="s_glossary" rows="4" placeholder="例如：尊嘟假嘟=真的假的；绷不住了=忍不住笑了"></textarea></div>
           </div>
+          <div class="toolbar"><button class="btn" onclick="testSearch()">测试搜索</button><span class="small muted" id="searchTestResult">未测试</span></div>
           <p class="small muted">开启后，她会在回复前检索你这句话里的梗/热词/网络用语，再把检索摘要作为理解参考。搜索失败不会影响正常聊天。检索内容会缓存 24 小时，减少调用次数。</p>
           <div class="notice info">Serper 有免费额度，且浏览器 CORS 支持较好；DuckDuckGo 不需要 Key，但国内网络或 CORS 可能失败。</div>
         </div>
