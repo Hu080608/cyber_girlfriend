@@ -46,7 +46,7 @@
             <span class="small muted" id="todayUsage">今日 0 token · ¥0.0000</span>
           </div>
           <div class="messages" id="messages"></div>
-          <div class="typing" id="typing"><i></i><i></i><i></i><span>她正在想…</span></div>
+          <div class="typing" id="typing"><i></i><i></i><i></i><span id="typingText">她正在想…</span></div>
           <div class="composer">
             <textarea id="chatInput" rows="1" maxlength="2000" placeholder="和她说点什么…"></textarea>
             <button class="btn primary send" id="sendBtn" onclick="sendMessage()">发送</button>
@@ -146,6 +146,15 @@
           <div class="field"><label>API Key</label><input id="s_fallback_key" type="password" autocomplete="off" placeholder="硅基流动 Key"></div>
           <div class="field"><label>模型名</label><input id="s_fallback_model" type="text" value="Qwen/Qwen2.5-7B-Instruct"></div>
           <div class="notice info">主模型失败、达到预算告警阈值或关闭付费模型时，会自动尝试免费兜底。若仍未配置，则返回本地保底话术。</div>
+        </div>
+        <div class="card"><h2>联网查梗 / 热词理解</h2>
+          <div class="formgrid">
+            <div class="field"><label>搜索模式</label><select id="s_search_mode"><option value="off">关闭</option><option value="auto">自动判断</option><option value="always">每条消息都搜</option></select></div>
+            <div class="field"><label>搜索服务</label><select id="s_search_provider"><option value="duckduckgo">DuckDuckGo（免 Key，可能被 CORS 限制）</option><option value="serper">Serper.dev（推荐，需 Key）</option><option value="tavily">Tavily（需 Key）</option></select></div>
+            <div class="field wide"><label>搜索 API Key</label><input id="s_search_key" type="password" autocomplete="off" placeholder="Serper/Tavily 的 Key；DuckDuckGo 留空"></div>
+          </div>
+          <p class="small muted">开启后，她会在回复前检索你这句话里的梗/热词/网络用语，再把检索摘要作为理解参考。搜索失败不会影响正常聊天。检索内容会缓存 24 小时，减少调用次数。</p>
+          <div class="notice info">Serper 有免费额度，且浏览器 CORS 支持较好；DuckDuckGo 不需要 Key，但国内网络或 CORS 可能失败。</div>
         </div>
         <div class="card"><h2>预算和上下文</h2>
           <div class="formgrid">
