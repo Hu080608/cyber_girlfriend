@@ -937,6 +937,8 @@ function writeSyncConfig(cfg) {
   localStorage.setItem(SYNC_GIST_KEY, cfg.gist || "");
   localStorage.setItem(SYNC_PASS_KEY, cfg.pass || "");
   localStorage.setItem(SYNC_AUTO_KEY, cfg.auto ? "1" : "0");
+  const gistInput = document.getElementById("sync_gist");
+  if (gistInput) gistInput.value = cfg.gist || "";
   updateSyncStatus();
 }
 
@@ -960,7 +962,19 @@ function updateSyncStatus() {
   const last = localStorage.getItem(SYNC_LAST_KEY) || "";
   if (!c.token) { el.textContent = "未配置同步。请填写 GitHub Token、同步密码，然后点击“上传 / 创建加密 Gist”。"; return; }
   if (!c.gist) { el.textContent = "已填写 Token/密码，但还没有 Gist ID。点击“上传 / 创建加密 Gist”会自动创建。"; return; }
-  el.textContent = `已配置 Gist ${c.gist.slice(0,8)}… · 自动同步：${c.auto ? "开启" : "关闭"}${last ? " · 上次同步：" + fmtTime(last) : ""}`;
+  el.textContent = `已配置 Gist：${c.gist} · 自动同步：${c.auto ? "开启" : "关闭"}${last ? " · 上次同步：" + fmtTime(last) : ""}`;
+}
+
+async function copySyncGistId() {
+  const c = getSyncConfig();
+  const id = c.gist || document.getElementById("sync_gist").value.trim();
+  if (!id) { toast("还没有 Gist ID，请先点击“上传 / 创建加密 Gist”", true); return; }
+  try {
+    await navigator.clipboard.writeText(id);
+    toast("Gist ID 已复制");
+  } catch (_e) {
+    prompt("复制下面的 Gist ID：", id);
+  }
 }
 
 function saveSyncSettings() {
