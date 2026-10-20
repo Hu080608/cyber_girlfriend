@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小满 · 网页版</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><div class="heart">♡</div><div><b>小满</b><small>网页客户端</small></div></div>
+    <nav class="nav" id="nav">
+      <button data-tab="chat" class="active">聊天</button>
+      <button data-tab="persona">人设</button>
+      <button data-tab="memory">记忆</button>
+      <button data-tab="evolution">进化</button>
+      <button data-tab="usage">用量</button>
+      <button data-tab="settings">设置</button>
+    </nav>
+    <div class="sidefoot">
+      纯静态 · 数据保存在当前浏览器<br>
+      不需要服务器，不需要 QQ
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><h1 id="pageTitle">聊天</h1><p id="pageSub">本地网页模式</p></div>
+      <div class="topmeta">
+        <span class="tag green" id="apiTag">API 未配置</span>
+        <span class="tag" id="budgetTag">预算正常</span>
+        <button class="btn" onclick="exportData()">导出备份</button>
+      </div>
+    </header>
+
+    <section class="tab active" id="tab-chat">
+      <div class="chatwrap">
+        <div class="chatmain">
+          <div class="chathead">
+            <div class="avatar" id="chatAvatar">♡</div>
+            <div><h2 id="chatName">小满</h2><p id="chatStage">关系阶段 --</p></div>
+            <div class="spacer"></div>
+            <span class="small muted" id="todayUsage">今日 0 token · ¥0.0000</span>
+          </div>
+          <div class="messages" id="messages"></div>
+          <div class="typing" id="typing"><i></i><i></i><i></i><span>她正在想…</span></div>
+          <div class="composer">
+            <textarea id="chatInput" rows="1" maxlength="2000" placeholder="和她说点什么…"></textarea>
+            <button class="btn primary send" id="sendBtn" onclick="sendMessage()">发送</button>
+          </div>
+          <div class="hint"><span>Enter 发送 · Shift+Enter 换行</span><span>数据只保存在本机浏览器</span></div>
+        </div>
+        <aside class="chatside">
+          <div class="card"><h3>今日状态</h3><div id="chatSideUsage" class="small muted">--</div></div>
+          <div class="card"><h3>她记得的事</h3><div id="chatMemories" class="small muted">暂无记忆。</div></div>
+          <div class="card"><h3>关系摘要</h3><div id="chatSummary" class="small muted">暂无摘要。</div></div>
+          <div class="card"><button class="btn" onclick="clearChat()">清空当前对话</button><p class="help">只清空聊天记录，不删除人设和记忆。</p></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="tab" id="tab-persona">
+      <div class="grid two">
+        <div class="card">
+          <h2>人设编辑 <span class="tag" id="personaVersionTag">v--</span></h2>
+          <div class="formgrid">
+            <div class="field"><label>名字</label><input id="p_name" type="text" maxlength="24"></div>
+            <div class="field"><label>称呼对方</label><input id="p_address" type="text" maxlength="30"></div>
+            <div class="field wide"><label>身份设定</label><textarea id="p_identity" rows="3"></textarea></div>
+            <div class="field wide"><label>语气</label><textarea id="p_tone" rows="3"></textarea></div>
+            <div class="field"><label>性格（每行一条）</label><textarea id="p_personality" rows="4"></textarea></div>
+            <div class="field"><label>口头禅（每行一条）</label><textarea id="p_catchphrases" rows="4"></textarea></div>
+            <div class="field"><label>边界（每行一条）</label><textarea id="p_boundaries" rows="4"></textarea></div>
+            <div class="field"><label>禁忌（每行一条）</label><textarea id="p_taboos" rows="4"></textarea></div>
+            <div class="field wide"><label>说话风格样本（每行一条）</label><textarea id="p_style" rows="4"></textarea></div>
+            <div class="field wide"><label>关系阶段定义（JSON）</label><textarea id="p_stages" rows="5" spellcheck="false"></textarea></div>
+            <div class="field"><label>当前关系阶段</label><select id="p_stage"></select></div>
+            <div class="field"><label>安全规则（每行一条）</label><textarea id="p_safety" rows="4"></textarea></div>
+            <div class="field wide"><label>修改备注</label><input id="p_reason" type="text" placeholder="例如：语气更自然一点"></div>
+          </div>
+          <button class="btn primary" onclick="savePersona()">保存并生效</button>
+        </div>
+        <div class="grid">
+          <div class="card"><h2>版本历史</h2><div class="tablewrap"><table><thead><tr><th>版本</th><th>状态</th><th>时间</th><th></th></tr></thead><tbody id="personaVersions"></tbody></table></div></div>
+          <div class="card"><h2>当前人设 JSON</h2><pre class="json" id="personaJson"></pre></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="tab-memory">
+      <div class="grid two">
+        <div class="card"><h2>记忆列表</h2><div class="tablewrap"><table><thead><tr><th>类型</th><th>内容</th><th>重要度</th><th></th></tr></thead><tbody id="memoryRows"></tbody></table></div></div>
+        <div class="grid">
+          <div class="card"><h2>手动添加</h2>
+            <div class="field"><label>类型</label><select id="memKind"><option value="preference">偏好</option><option value="event">事件</option><option value="fact">事实</option><option value="relationship">关系</option><option value="boundary">边界</option></select></div>
+            <div class="field"><label>内容</label><textarea id="memContent" rows="3" maxlength="500"></textarea></div>
+            <div class="field"><label>重要度 1-5</label><input id="memImportance" type="number" min="1" max="5" value="3"></div>
+            <button class="btn primary" onclick="addMemory()">添加</button>
+          </div>
+          <div class="card"><h2>自动整理</h2><p class="small muted">调用一次模型，把最近聊天整理成摘要和长期记忆。</p><button class="btn" onclick="summarizeNow()">立即整理记忆</button><div class="help">会消耗一次模型调用。</div></div>
+          <div class="card"><h2>当前摘要</h2><div id="memorySummary" class="small muted">暂无摘要。</div><button class="btn danger small mt" onclick="clearMemories()">清空全部记忆和摘要</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="tab-evolution">
+      <div class="grid two">
+        <div class="card"><h2>自动进化</h2>
+          <p class="small muted">从最近对话中提炼说话风格，生成候选版本。默认只生成待审核版本，不会直接替换人设。</p>
+          <div class="formgrid">
+            <div class="field"><label>每多少条用户消息自动复盘</label><input id="evoEvery" type="number" min="0" value="20"><div class="help">0 = 关闭自动复盘</div></div>
+            <div class="field"><label>自动通过</label><select id="evoAuto"><option value="false">否，只生成待审核</option><option value="true">是，直接生效</option></select></div>
+          </div>
+          <button class="btn primary" onclick="runEvolution()">立即复盘一次</button> <button class="btn" onclick="saveEvolutionSettings()">保存进化设置</button>
+        </div>
+        <div class="card"><h2>待审核版本</h2><div id="pendingVersions" class="small muted">暂无。</div><h2 class="mt">最近差异</h2><pre class="json" id="evolutionDiff">暂无记录。</pre></div>
+      </div>
+      <div class="card mt"><h2>进化记录</h2><div class="tablewrap"><table><thead><tr><th>时间</th><th>状态</th><th>摘要</th><th>模型</th></tr></thead><tbody id="evolutionRuns"></tbody></table></div></div>
+    </section>
+
+    <section class="tab" id="tab-usage">
+      <div class="grid cards">
+        <div class="card kpi"><div class="label">今日</div><div class="value" id="uToday">¥0.0000</div><div class="sub" id="uTodaySub">0 token</div></div>
+        <div class="card kpi"><div class="label">本月</div><div class="value" id="uMonth">¥0.0000</div><div class="sub" id="uMonthSub">0 token</div></div>
+        <div class="card kpi"><div class="label">预算模式</div><div class="value" id="uMode">正常</div><div class="sub" id="uBudgetSub">--</div></div>
+        <div class="card kpi"><div class="label">请求数</div><div class="value" id="uRequests">0</div><div class="sub">本月</div></div>
+      </div>
+      <div class="card mt"><h2>预算</h2><div class="bar" id="monthBar"><i style="width:0"></i></div><div class="toolbar mt"><button class="btn" onclick="switchTab('settings')">去设置预算</button><button class="btn danger" onclick="clearUsage()">清空用量记录</button></div></div>
+      <div class="card mt"><h2>最近请求</h2><div class="tablewrap"><table><thead><tr><th>时间</th><th>用途</th><th>模型</th><th>Token</th><th>费用</th></tr></thead><tbody id="usageRows"></tbody></table></div></div>
+    </section>
+
+    <section class="tab" id="tab-settings">
+      <div class="grid two">
+        <div class="card"><h2>主模型：DeepSeek</h2>
+          <div class="field"><label>API Base</label><input id="s_primary_base" type="text" value="https://api.deepseek.com/v1"></div>
+          <div class="field"><label>API Key</label><input id="s_primary_key" type="password" autocomplete="off" placeholder="只保存在本机浏览器"></div>
+          <div class="field"><label>模型名</label><input id="s_primary_model" type="text" value="deepseek-chat"></div>
+          <div class="formgrid"><div class="field"><label>输入价 ¥/百万 token</label><input id="s_primary_in" type="number" step="0.01" value="2"></div><div class="field"><label>输出价 ¥/百万 token</label><input id="s_primary_out" type="number" step="0.01" value="8"></div></div>
+          <div class="notice warn">⚠ 纯静态网页无法隐藏 API Key。Key 会保存在当前浏览器 localStorage，任何能使用这台电脑/浏览器的人都能看到。不要在公共电脑上填写。</div>
+        </div>
+        <div class="card"><h2>免费兜底</h2>
+          <div class="field"><label>API Base</label><input id="s_fallback_base" type="text" value="https://api.siliconflow.cn/v1"></div>
+          <div class="field"><label>API Key</label><input id="s_fallback_key" type="password" autocomplete="off" placeholder="硅基流动 Key"></div>
+          <div class="field"><label>模型名</label><input id="s_fallback_model" type="text" value="Qwen/Qwen2.5-7B-Instruct"></div>
+          <div class="notice info">主模型失败、达到预算告警阈值或关闭付费模型时，会自动尝试免费兜底。若仍未配置，则返回本地保底话术。</div>
+        </div>
+        <div class="card"><h2>预算和上下文</h2>
+          <div class="formgrid">
+            <div class="field"><label>月预算 ¥</label><input id="s_month_cap" type="number" step="0.01" value="20"></div>
+            <div class="field"><label>日预算 ¥</label><input id="s_day_cap" type="number" step="0.01" value="2"></div>
+            <div class="field"><label>告警阈值</label><input id="s_warn" type="number" step="0.05" value="0.8"></div>
+            <div class="field"><label>硬停止</label><select id="s_hard"><option value="true">是</option><option value="false">否</option></select></div>
+            <div class="field"><label>上下文消息数</label><input id="s_history" type="number" value="16"></div>
+            <div class="field"><label>最大输出 token</label><input id="s_max_tokens" type="number" value="300"></div>
+            <div class="field"><label>温度</label><input id="s_temperature" type="number" step="0.05" value="0.85"></div>
+            <div class="field"><label>每多少条消息整理记忆</label><input id="s_memory_every" type="number" min="0" value="8"></div>
+          </div>
+          <button class="btn primary" onclick="saveSettings()">保存设置</button>
+        </div>
+        <div class="card"><h2>数据</h2>
+          <p class="small muted">所有数据默认存在当前浏览器 localStorage。换浏览器、清理缓存会丢失；可开启下面的加密 Gist 同步，或使用导出备份。</p>
+          <div class="toolbar"><button class="btn" onclick="exportData()">导出 JSON 备份</button><label class="btn" style="cursor:pointer">导入备份<input id="importFile" type="file" accept="application/json" style="display:none" onchange="importData(event)"></label><button class="btn danger" onclick="resetAll()">清空全部数据</button></div>
+          <div class="help">GitHub Pages 只负责提供静态文件；不会保存任何聊天或 API Key。开启 Gist 同步后，数据会加密后保存到你的未列出（secret）Gist。</div>
+          <div class="help">若浏览器报 CORS 错误，说明 DeepSeek/SiliconFlow 不允许网页直接跨域调用。你需要在设置里填写一个允许 CORS 的 API 中转地址，或自己部署一个很小的 Cloudflare Worker 代理。</div>
+        </div>
+        <div class="card" style="grid-column:1/-1">
+          <h2>跨设备同步：GitHub Gist 加密备份</h2>
+          <p class="small muted">人设、配置、记忆、聊天记录会先用你的同步密码加密，再保存到一个未列出（secret）GitHub Gist。换设备后输入同样的 Token、Gist ID 和密码即可恢复。</p>
+          <div class="formgrid">
+            <div class="field"><label>GitHub Classic Token（勾选 gist 权限）</label><input id="sync_token" type="password" autocomplete="off" placeholder="ghp_..."></div>
+            <div class="field"><label>Gist ID（首次上传留空自动创建）</label><input id="sync_gist" type="text" placeholder="例如 a1b2c3d4..."></div>
+            <div class="field"><label>同步密码（用于加密，务必记住）</label><input id="sync_pass" type="password" autocomplete="off" placeholder="至少 8 位"></div>
+            <div class="field"><label>自动同步</label><select id="sync_auto"><option value="true">开启（修改后自动上传）</option><option value="false">关闭（手动上传）</option></select></div>
+          </div>
+          <div class="toolbar">
+            <button class="btn primary" onclick="cloudPush(false)">上传 / 创建加密 Gist</button>
+            <button class="btn" onclick="cloudPull()">从 Gist 恢复</button>
+            <button class="btn" onclick="saveSyncSettings()">保存同步设置</button>
+            <button class="btn danger" onclick="clearSyncSettings()">清除同步设置</button>
+          </div>
+          <div class="help" id="syncStatus">未配置同步。</div>
+          <div class="notice warn">Token 和同步密码只保存在当前浏览器；Gist 内容为 AES-GCM 加密。忘记同步密码将无法恢复。Classic Token 只需 gist 权限，不要给 repo 权限。</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<script src="./app.js"></script>
+</body>
+</html>
